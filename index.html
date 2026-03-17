@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduTab School – opravená verze</title>
+  <style>
+    :root{--bg:#f4f7fb;--panel:#fff;--line:#d9e2ef;--text:#1f2937;--muted:#64748b;--blue:#2563eb;--blue-soft:#dbeafe;--green:#15803d;--amber:#d97706;--red:#dc2626;--violet:#7c3aed;--shadow:0 10px 30px rgba(15,23,42,.08);--radius:20px}
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#f8fbff 0%,var(--bg) 100%);color:var(--text)}
+    .app{max-width:1600px;margin:0 auto;padding:20px}.hero,.toolbar,.formula,.panel,.tabs,.status{background:var(--panel);border:1px solid #e5e7eb;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero{padding:18px 20px;margin-bottom:12px}.hero h1{margin:0;font-size:30px}.sub{color:var(--muted);margin-top:6px;line-height:1.5}
+    .tabs,.toolbar,.status{display:flex;flex-wrap:wrap;gap:8px;padding:12px;margin-bottom:12px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px}.formula{display:grid;grid-template-columns:120px 1fr 110px;gap:10px;padding:12px;align-items:center;margin-bottom:12px}
+    .sheet-grid{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:12px}.sheet-wrap{background:var(--panel);border:1px solid #e5e7eb;border-radius:20px;overflow:auto;max-height:72vh;min-height:560px;box-shadow:var(--shadow)}
+    .namebox,.smallbox{border:1px solid #d1d5db;background:#f8fafc;border-radius:14px;padding:10px;text-align:center;font-weight:bold}.panel{padding:14px}.section{font-size:16px;font-weight:bold;margin:0 0 10px}
+    table{border-collapse:collapse;width:max-content;background:#fff} th,td{border:1px solid var(--line);min-width:122px;width:122px;height:40px;padding:6px 8px;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative} th{background:#eef3fb;text-align:center;position:sticky;top:0;z-index:2} .corner{left:0;z-index:4;min-width:50px;width:50px}.rowhead{position:sticky;left:0;z-index:3;min-width:50px;width:50px;background:#eef3fb}
+    td.selected{background:#eff6ff;box-shadow:inset 0 0 0 2px var(--blue)} td.rowmark,th.rowmark,td.colmark,th.colmark{background:#edf2ff!important} td.task-target{background:#fff7ed;box-shadow:inset 0 0 0 2px var(--amber)} td.task-target::after{content:'💡';position:absolute;top:4px;right:4px;font-size:12px} td.error{background:#fef2f2;color:var(--red)} td.formula-cell{background:#eefbf1}
+    button,input,textarea,select{font:inherit} button{border:1px solid #d1d5db;background:#fff;padding:10px 12px;border-radius:14px;cursor:pointer} button:hover{transform:translateY(-1px)} button.primary{background:var(--blue);border-color:var(--blue);color:#fff} button.soft{background:var(--blue-soft);border-color:#bfdbfe;color:#1d4ed8} button.active{background:#f5f3ff;border-color:#c4b5fd;color:#6d28d9}.bigbtn{padding:14px 16px;font-size:16px;font-weight:bold}
+    .text,textarea,select,#formulaInput{width:100%;border:1px solid #d1d5db;border-radius:14px;padding:10px 12px;background:#fff} textarea{resize:vertical}
+    .pill{background:#f8fafc;border:1px solid #e5e7eb;border-radius:999px;padding:6px 10px;color:var(--muted)} .progress{height:10px;background:#eef2ff;border-radius:999px;overflow:hidden}.progress>div{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--violet));transition:.25s}
+    .guide{display:flex;gap:12px;align-items:center;margin-bottom:10px}.mascot{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:30px;background:linear-gradient(135deg,#dbeafe,#ede9fe);border:2px solid #c7d2fe}.bubble{background:#f8fafc;border:1px solid #e5e7eb;border-radius:16px;padding:12px;min-height:96px;line-height:1.45}
+    .mini-list{display:grid;gap:8px}.mini{background:#fafafa;border:1px solid #e5e7eb;border-radius:14px;padding:10px;font-size:14px;line-height:1.45}.score{font-size:28px;font-weight:bold}.muted{color:var(--muted);font-size:13px}.good{color:var(--green);font-weight:bold}.bad{color:var(--red);font-weight:bold}.hidden{display:none!important}
+    .tabs button.on{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.kidbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.kidchip{background:#fff;border:1px solid #e5e7eb;border-radius:999px;padding:8px 12px;font-size:14px}
+    @media (max-width:1280px){.layout,.sheet-grid{grid-template-columns:1fr}} @media (max-width:900px){.formula,.grid2,.grid3{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <h1>EduTab School</h1>
+    <div class="sub">Opravená stabilní verze pro školní použití. Všechna hlavní tlačítka jsou znovu napojená, úkoly vedou žáka krok za krokem a výběrové úkoly už předem neprozrazují správnou buňku.</div>
+  </div>
+
+  <div class="tabs" id="topTabs">
+    <button class="on bigbtn" data-mode="student">👦 Žák</button>
+    <button class="bigbtn" data-mode="teacher">👩‍🏫 Učitel</button>
+    <button class="bigbtn" data-mode="about">📘 Návod</button>
+  </div>
+
+  <div class="kidbar">
+    <div class="kidchip">1. Načti zadání</div>
+    <div class="kidchip">2. Vyřeš úkoly</div>
+    <div class="kidchip">3. Exportuj výsledek</div>
+  </div>
+
+  <div class="toolbar">
+    <button id="printApp">🖨 Tisk</button>
+    <button id="zoomOut">A−</button>
+    <button id="zoomReset">A</button>
+    <button id="zoomIn">A+</button>
+    <button id="openTableWindow">🗖 Tabulka</button>
+    <button class="primary" id="loadDemo">Načíst ukázková data</button>
+    <button id="addRecordBtn">Přidat záznam</button>
+    <button id="sortAZBtn">Seřadit A–Z</button>
+    <button id="sort09Btn">Seřadit 0–9</button>
+    <button id="loadAssignmentBtn">Načíst zadání</button>
+    <button id="nextTaskTop">Další úkol</button>
+    <button id="toggleFilter">Filtr</button>
+  </div>
+
+  <div id="studentMode">
+    <div class="panel" style="margin-bottom:12px">
+      <div class="section">Identifikace žáka</div>
+      <div class="grid2">
+        <input class="text" id="studentName" placeholder="Jméno a příjmení žáka" />
+        <input class="text" id="studentClass" placeholder="Třída, např. 8.A" />
+      </div>
+      <div class="grid2" style="margin-top:8px">
+        <input class="text" id="schoolName" placeholder="Škola" />
+        <input class="text" id="assignmentCode" placeholder="Kód zadání (volitelně)" />
+      </div>
+    </div>
+
+    <div class="layout">
+      <div>
+        <div class="formula">
+          <div class="namebox" id="nameBox">A1</div>
+          <input id="formulaInput" placeholder="Zadej text nebo vzorec" />
+          <button class="primary" id="applyFormula">Použít</button>
+        </div>
+
+        <div class="sheet-grid">
+          <div>
+            <div class="sheet-wrap" id="sheetWrap"><table id="sheet"><thead></thead><tbody></tbody></table></div>
+            <div class="status">
+              <span class="pill" id="stCell">Buňka: A1</span>
+              <span class="pill" id="stRaw">Obsah:</span>
+              <span class="pill" id="stValue">Výsledek:</span>
+              <span class="pill" id="stTask">Úkol: žádný</span>
+              <span class="pill" id="stFilter">Filtr: vypnut</span>
+            </div>
+          </div>
+          <div>
+            <div class="panel"><div class="section">Výběr v tabulce</div><div class="mini-list"><div class="smallbox" id="colInfo">Sloupec: –</div><div class="smallbox" id="rowInfo">Řádek: –</div></div></div>
+            <div class="panel" style="margin-top:12px"><div class="section">Souhrn dat</div><div class="mini-list" id="summaryBox"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <aside>
+        <div class="panel" style="margin-bottom:12px">
+          <div class="guide"><div class="mascot">🤖</div><div><div class="section">Průvodce Tabulík</div><div class="muted">Pomáhá žákům krok za krokem.</div></div></div>
+          <div class="bubble" id="guideBubble">Ahoj 👋 Jedeme krok po kroku. Nejprve si načti data, potom si v aktivním úkolu přečti postup a až pak klikej nebo zapisuj.</div>
+        </div>
+
+        <div class="panel" style="margin-bottom:12px">
+          <div class="section">Aktivní úkol</div>
+          <div class="mini" id="taskText"><strong>Zatím žádný úkol.</strong> Klikni na „Další úkol“.</div>
+          <div class="mini-list" id="taskSteps" style="margin-top:10px"></div>
+          <div class="progress" style="margin-top:10px"><div id="taskBar"></div></div>
+          <div class="muted" id="taskMeta" style="margin-top:8px">0 / 0 splněno</div>
+          <div class="grid2" style="margin-top:10px"><button id="prevTask">Zpět</button><button id="nextTask">Další úkol</button></div>
+          <div class="grid2" style="margin-top:8px"><button id="finishWork" class="soft">Dokončit</button><button id="resetWork">Reset práce</button></div>
+          <div class="grid2" style="margin-top:8px"><button id="saveLocal">Uložit průběžně</button><button id="loadLocal">Obnovit práci</button></div>
+          <div class="grid2" style="margin-top:8px"><button id="exportResult">Export výsledku</button><button id="loadAssignmentBtn2">Načíst zadání</button></div>
+          <input type="file" id="assignmentFile" accept="application/json" class="hidden" />
+        </div>
+
+        <div class="panel" style="margin-bottom:12px"><div class="section">Výsledek žáka</div><div class="score" id="scoreBox">0 %</div><div class="mini-list" style="margin-top:10px"><div class="mini" id="studentEval">Žák zatím nezačal nebo neodeslal práci.</div><div class="mini" id="teacherEval">Učitel: doporučeno nejprve načíst zadání a sledovat přesnost vzorců.</div></div></div>
+        <div class="panel" style="margin-bottom:12px"><div class="section">Průběh práce</div><div class="mini-list"><div class="mini">Čas práce: <b id="workTime">00:00</b></div><div class="mini">Poslední uložení: <b id="saveState">zatím neuloženo</b></div><div class="mini">Režim: <b id="modeState">procvičování</b></div></div></div>
+        <div class="panel"><div class="section">Rychlá teorie</div><div class="mini-list" id="theoryBox"></div></div>
+      </aside>
+    </div>
+  </div>
+
+  <div id="teacherMode" class="hidden">
+    <div class="panel" style="margin-bottom:12px"><div class="section">Hotová školní zadání pro 8. ročník</div><div class="grid3"><button id="preset1">Adresy buněk</button><button id="preset2">Vzorce a funkce</button><button id="preset3">Filtr a řazení</button></div></div>
+    <div class="panel" style="margin-bottom:12px"><div class="section">Učitelské vyhodnocení výsledků</div><div class="grid2"><button id="loadStudentResult">Načíst výsledek žáka</button><input type="file" id="studentResultFile" accept="application/json" class="hidden" /></div><div id="teacherResultBox" class="mini-list" style="margin-top:12px"><div class="mini">Zatím není načten žádný výsledek žáka.</div></div></div>
+    <div class="layout">
+      <div>
+        <div class="panel" style="margin-bottom:12px"><div class="section">Tvorba zadání</div><div class="grid2"><input class="text" id="assName" placeholder="Název zadání" /><input class="text" id="assGrade" placeholder="Ročník / třída" /></div><textarea id="assNote" rows="3" placeholder="Poznámka pro žáky nebo učitele" style="margin-top:8px"></textarea></div>
+        <div class="panel"><div class="section">Banka úkolů</div><div class="grid2"><select id="taskType"><option value="select">Najdi buňku</option><option value="write">Zapiš do buňky</option></select><input class="text" id="taskSkill" placeholder="Dovednost" /></div><input class="text" id="taskTarget" placeholder="Cílová buňka, např. C9" style="margin-top:8px" /><textarea id="taskPrompt" rows="3" placeholder="Text zadání" style="margin-top:8px"></textarea><input class="text" id="taskExpected" placeholder="Očekávaný zápis" style="margin-top:8px" /><div class="grid2" style="margin-top:8px"><input class="text" id="taskPoints" placeholder="Body" value="2" /><button id="addTaskBtn" class="primary">Přidat úkol</button></div><div id="taskBankBox" class="mini-list" style="margin-top:12px"></div><div class="grid2" style="margin-top:12px"><button id="loadDemoTasks">Načíst ukázkové úkoly</button><button id="clearTasks">Vymazat úkoly</button></div><div class="grid2" style="margin-top:8px"><button id="exportAssignment" class="soft">Export zadání JSON</button><button id="downloadAppInfo">Návod pro sdílení</button></div></div>
+      </div>
+      <aside><div class="panel"><div class="section">Jak to použít ve škole</div><div class="mini-list"><div class="mini"><strong>1.</strong> Nahraj tento HTML soubor na Google Drive nebo vlož do Google Sites.</div><div class="mini"><strong>2.</strong> V režimu učitel vytvoř nebo exportuj zadání jako <code>zadani.json</code>.</div><div class="mini"><strong>3.</strong> Žáci otevřou aplikaci a kliknou na <strong>Načíst zadání</strong>.</div><div class="mini"><strong>4.</strong> Po dokončení žáci kliknou na <strong>Export výsledku</strong> a pošlou soubor učiteli.</div></div></div></aside>
+    </div>
+  </div>
+
+  <div id="aboutMode" class="hidden"><div class="panel"><div class="section">Návod pro Google Sites / Google Disk</div><div class="mini-list"><div class="mini"><strong>Varianta A — Google Sites:</strong> použij <strong>Vložit → Vložit kód</strong> nebo <strong>Vložit → Vložit URL</strong> a stránku publikuj.</div><div class="mini"><strong>Varianta B — Google Disk:</strong> nahraj HTML na Disk a vlož odkaz do Classroom nebo Sites.</div><div class="mini"><strong>Workflow:</strong> učitel exportuje zadání JSON → žák načte zadání → žák exportuje výsledek JSON → učitel si výsledek načte zpět.</div></div></div></div>
+</div>
+
+<script>
+(() => {
+  const ROWS = 22, COLS = 10, COLS_LIST = Array.from({length: COLS}, (_, i) => String.fromCharCode(65 + i));
+  const LOCAL_KEY = 'edutab_school_local_v2_fixed';
+  const $ = id => document.getElementById(id);
+  const els = {};
+  ['sheet','formulaInput','sheetWrap','nameBox','stCell','stRaw','stValue','stTask','stFilter','colInfo','rowInfo','summaryBox','guideBubble','taskText','taskSteps','taskBar','taskMeta','scoreBox','studentEval','teacherEval','theoryBox','workTime','saveState','modeState','assignmentFile','studentResultFile','taskBankBox','teacherResultBox','studentName','studentClass','schoolName','assignmentCode','assName','assGrade','assNote','taskType','taskSkill','taskTarget','taskPrompt','taskExpected','taskPoints'].forEach(id => els[id] = $(id));
+  const thead = els.sheet.querySelector('thead');
+  const tbody = els.sheet.querySelector('tbody');
+
+  let workbook = { sheets: {'List 1': {}}, activeSheet: 'List 1' };
+  let selected = 'A1', selectedRow = null, selectedCol = null, tableScale = 1;
+  let filterState = { enabled: false, text: '' };
+  let tasks = [], activeTaskIndex = -1, solved = new Set(), answers = {}, workFinished = false;
+  let workSeconds = 0, workTimer = null;
+
+  function data(){ return workbook.sheets[workbook.activeSheet]; }
+  function addr(r,c){ return COLS_LIST[c] + (r+1); }
+  function parseAddr(a){ const m = String(a||'').match(/^([A-Z]+)(\d+)$/); return m ? { col: COLS_LIST.indexOf(m[1]), row: Number(m[2]) - 1 } : null; }
+  function get(a){ return data()[a] ?? ''; }
+  function num(v){ const n = Number(String(v ?? '').replace(',', '.')); return Number.isFinite(n) ? n : 0; }
+  function normalize(v){ return String(v || '').trim().replace(/\s+/g, ''); }
+  function studentMeta(){ return { studentName: els.studentName.value.trim(), studentClass: els.studentClass.value.trim(), schoolName: els.schoolName.value.trim(), assignmentCode: els.assignmentCode.value.trim() }; }
+
+  function rangeCells(range){ const [s,e] = range.split(':'); const ps = parseAddr(s), pe = parseAddr(e); if(!ps || !pe) return []; const out = []; for(let r=ps.row;r<=pe.row;r++) for(let c=ps.col;c<=pe.col;c++) out.push(addr(r,c)); return out; }
+  function evalFormula(raw){ raw = String(raw || ''); if(!raw.startsWith('=')) return raw; const f = raw.slice(1).trim(); try { if(f.startsWith('SUMA(')) return String(rangeCells(f.slice(5,-1)).reduce((s,a)=>s+num(get(a)),0)); if(f.startsWith('PRŮMĚR(')){ const vals = rangeCells(f.slice(7,-1)).map(a=>num(get(a))); return String(Math.round((vals.reduce((s,v)=>s+v,0)/Math.max(vals.length,1))*100)/100); } if(f.startsWith('MAX(')){ const vals = rangeCells(f.slice(4,-1)).map(a=>num(get(a))); return String(Math.max(...vals)); } if(f.startsWith('POČET(')) return String(rangeCells(f.slice(6,-1)).filter(a=>String(get(a)).trim() !== '').length); if(f.startsWith('DÉLKA(')){ const x = f.slice(6,-1); return String(get(x)||x).length; } if(f.startsWith('ZLEVA(')){ const p = f.slice(6,-1).split(';'); return String(get(p[0])||p[0]).slice(0, num(p[1])); } if(f.startsWith('KDYŽ(')){ const p = f.slice(5,-1).split(';'); const m = p[0].match(/([A-Z]+\d+)([<>=]+)(\d+)/); if(!m) return '#CHYBA'; const left = num(get(m[1])), op = m[2], right = num(m[3]); const ok = op==='>='?left>=right:op==='>'?left>right:op==='<='?left<=right:op==='<'?left<right:left===right; return ok ? (p[1]||'').replaceAll('"','') : (p[2]||'').replaceAll('"',''); } return '#CHYBA'; } catch { return '#CHYBA'; } }
+  function displayValue(a){ const raw = get(a); return String(raw).startsWith('=') ? evalFormula(raw) : raw; }
+
+  function ensureSummary(){ if(get('A9')==='') data()['A9']='souhrn'; if(get('B9')==='') data()['B9']=''; if(get('C9')==='') data()['C9']=''; }
+  function computeSummary(){ const rows = [2,3,4,5,6,7,8].filter(r => get('A'+r)); return { rows: rows.length, sumLegs: rows.reduce((s,r)=>s+num(get('C'+r)),0), countEyes: rows.filter(r=>String(get('B'+r)).trim()!=='').length }; }
+
+  function renderHeaders(){ thead.innerHTML=''; const tr=document.createElement('tr'); const corner=document.createElement('th'); corner.className='corner'; corner.onclick=()=>{selected=null;selectedRow=null;selectedCol=null;render();}; tr.appendChild(corner); for(let c=0;c<COLS;c++){ const th=document.createElement('th'); th.textContent=COLS_LIST[c]; if(selectedCol===c) th.classList.add('colmark'); th.onclick=()=>{selected=null;selectedRow=null;selectedCol=c;render();}; tr.appendChild(th);} thead.appendChild(tr); }
+  function rowVisible(r){ if(!filterState.enabled || !filterState.text) return true; if(r===1) return true; const t = filterState.text.toLowerCase(); for(let c=0;c<COLS;c++){ if(String(displayValue(addr(r-1,c))).toLowerCase().includes(t)) return true; } return false; }
+  function renderBody(){ tbody.innerHTML=''; const task = activeTaskIndex>=0 ? tasks[activeTaskIndex] : null; for(let r=0;r<ROWS;r++){ const rn=r+1; if(!rowVisible(rn)) continue; const tr=document.createElement('tr'); const rh=document.createElement('th'); rh.className='rowhead'; rh.textContent=rn; if(selectedRow===r) rh.classList.add('rowmark'); rh.onclick=()=>{selected=null;selectedCol=null;selectedRow=r;render();}; tr.appendChild(rh); for(let c=0;c<COLS;c++){ const a=addr(r,c), raw=get(a), val=displayValue(a), td=document.createElement('td'); td.textContent=val; if(a===selected) td.classList.add('selected'); if(selectedRow===r) td.classList.add('rowmark'); if(selectedCol===c) td.classList.add('colmark'); if(String(raw).startsWith('=')) td.classList.add('formula-cell'); if(String(val).startsWith('#')) td.classList.add('error'); if(task && task.type==='write' && task.target===a) td.classList.add('task-target'); td.onclick=()=>{ selected=a; selectedRow=null; selectedCol=null; els.formulaInput.value=get(a); if(task && task.type==='select' && a===task.target){ solveTask(task.id,a); els.guideBubble.textContent='Správně ✔ Vybral(a) jsi správnou buňku a úkol je splněn.'; return; } render(); explainSelection(a); }; tr.appendChild(td);} tbody.appendChild(tr);} }
+  function explainSelection(a){ els.guideBubble.innerHTML = `Buňka <b>${a}</b>.<br>Obsah: <b>${get(a)||'(prázdná)'}</b><br>Výsledek: <b>${displayValue(a)||'(prázdný)'}</b>`; }
+  function updateStatus(){ els.nameBox.textContent = selected || (selectedCol!==null?COLS_LIST[selectedCol]:selectedRow!==null?String(selectedRow+1):'–'); els.stCell.textContent='Buňka: '+(selected||'–'); els.stRaw.textContent='Obsah: '+(selected?get(selected):'–'); els.stValue.textContent='Výsledek: '+(selected?displayValue(selected):'–'); els.stTask.textContent='Úkol: '+(activeTaskIndex>=0?tasks[activeTaskIndex].prompt:'žádný'); els.stFilter.textContent='Filtr: '+(filterState.enabled?('zapnut ('+filterState.text+')'):'vypnut'); if(selected){ const p=parseAddr(selected); els.colInfo.textContent='Sloupec: '+COLS_LIST[p.col]; els.rowInfo.textContent='Řádek: '+(p.row+1);} else { els.colInfo.textContent='Sloupec: '+(selectedCol!==null?COLS_LIST[selectedCol]:'–'); els.rowInfo.textContent='Řádek: '+(selectedRow!==null?selectedRow+1:'–'); } }
+  function updateSide(){ const s = computeSummary(); els.summaryBox.innerHTML=[`Počet datových záznamů: <b>${s.rows}</b>`,`Řádek souhrnu: <b>9</b>`,`Součet nohou: <b>${s.sumLegs}</b>`,`Počet čísel v očích: <b>${s.countEyes}</b>`].map(x=>`<div class="mini">${x}</div>`).join(''); const base=selected||'A1', raw=get(base); els.theoryBox.innerHTML=[`Adresa <b>${base}</b> znamená sloupec <b>${(base.match(/[A-Z]+/)||['–'])[0]}</b> a řádek <b>${(base.match(/\d+/)||['–'])[0]}</b>.`,(String(raw).startsWith('=')?'Buňka obsahuje <b>vzorec</b>.':'Buňka obsahuje <b>běžná data</b>.'),'Rozsah buněk zapisujeme například jako <b>C2:C7</b>.','Ve vzorcích se argumenty oddělují zpravidla <b>středníkem</b>.'].map(x=>`<div class="mini">${x}</div>`).join(''); }
+  function applyScale(){ els.sheet.style.transform=`scale(${tableScale})`; els.sheet.style.transformOrigin='top left'; els.sheetWrap.style.minHeight=Math.max(560,620*tableScale)+'px'; }
+  function render(){ ensureSummary(); renderHeaders(); renderBody(); updateStatus(); updateSide(); updateProgress(); applyScale(); }
+
+  function formatTime(total){ const m=Math.floor(total/60), s=total%60; return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+  function updateTime(){ els.workTime.textContent = formatTime(workSeconds); }
+  function startTimer(){ if(workTimer) clearInterval(workTimer); workTimer = setInterval(()=>{ workSeconds++; updateTime(); }, 1000); }
+  function setSaveState(text){ els.saveState.textContent = text; }
+  function saveLocalState(){ try{ localStorage.setItem(LOCAL_KEY, JSON.stringify({ workbook, selected, selectedRow, selectedCol, filterState, tasks, activeTaskIndex, solved:[...solved], answers, workFinished, workSeconds, meta:studentMeta(), ass:{title:els.assName.value||'',grade:els.assGrade.value||'',note:els.assNote.value||''} })); setSaveState(new Date().toLocaleTimeString('cs-CZ')); }catch(e){ setSaveState('uložení selhalo'); } }
+  function loadLocalState(){ try{ const raw=localStorage.getItem(LOCAL_KEY); if(!raw) return alert('Nebyla nalezena žádná uložená práce.'); const p=JSON.parse(raw); workbook=p.workbook||workbook; selected=p.selected||'A1'; selectedRow=p.selectedRow??null; selectedCol=p.selectedCol??null; filterState=p.filterState||{enabled:false,text:''}; tasks=p.tasks||tasks; activeTaskIndex=p.activeTaskIndex??-1; solved=new Set(p.solved||[]); answers=p.answers||{}; workFinished=!!p.workFinished; workSeconds=p.workSeconds||0; if(p.meta){ els.studentName.value=p.meta.studentName||''; els.studentClass.value=p.meta.studentClass||''; els.schoolName.value=p.meta.schoolName||''; els.assignmentCode.value=p.meta.assignmentCode||''; } if(p.ass){ els.assName.value=p.ass.title||''; els.assGrade.value=p.ass.grade||''; els.assNote.value=p.ass.note||''; } updateTime(); renderTaskBank(); render(); setSaveState('obnoveno'); els.guideBubble.textContent='Byla obnovena dříve uložená práce.'; }catch(e){ alert('Uloženou práci se nepodařilo načíst.'); } }
+
+  function solveTask(id,answer){ solved.add(id); answers[id]=answer; const current = tasks[activeTaskIndex]; if(current && current.id===id && activeTaskIndex < tasks.length-1) activeTaskIndex++; updateProgress(); render(); }
+
+  function getTaskSteps(task){
+    if(!task) return [];
+    const target = task.target ? `<b>${task.target}</b>` : 'cílovou buňku';
+    if(task.type==='select'){
+      return [
+        `1. Nejprve si přečti adresu a rozděl ji na sloupec a řádek.`,
+        `2. Najdi sloupec a řádek a klikni na jejich průsečík ${target}.`,
+        `3. Zkontroluj dole ve stavovém řádku, že je vybraná správná buňka.`
+      ];
+    }
+    return [
+      `1. Klikni do buňky ${target}.`,
+      `2. Připrav si zápis a napiš ho do řádku pro vzorec nebo text.`,
+      `3. Klikni na Použít a zkontroluj, že nevznikla chyba a že se úkol označil jako splněný.`
+    ];
+  }
+  function updateTaskSteps(task){
+    if(!els.taskSteps) return;
+    const items = getTaskSteps(task);
+    els.taskSteps.innerHTML = items.length
+      ? items.map(step => `<div class="mini">${step}</div>`).join('')
+      : '<div class="mini">Tip: čti zadání po částech, najdi cílovou buňku a až potom klikej nebo zapisuj.</div>';
+  }
+
+  function updateProgress(){ const total=Math.max(tasks.length,1), done=solved.size, score=Math.round(done/total*100); const currentTask = activeTaskIndex>=0 ? tasks[activeTaskIndex] : null; els.taskBar.style.width=score+'%'; els.taskMeta.textContent=`${done} / ${tasks.length} splněno`; els.scoreBox.textContent=score+' %'; els.taskText.innerHTML = currentTask ? `<strong>${currentTask.prompt}</strong><div class="muted" style="margin-top:6px">Cíl: ${currentTask.type==='select' ? 'najít správnou buňku' : 'správně zapsat obsah do buňky '+currentTask.target}</div>` : '<strong>Zatím žádný úkol.</strong> Klikni na „Další úkol“.'; updateTaskSteps(currentTask); els.modeState.textContent = workFinished ? 'dokončeno' : 'procvičování'; if(score===100){ els.studentEval.innerHTML='<span class="good">Žák splnil všechny úkoly.</span>'; els.teacherEval.textContent='Učitel: výstupy splněny na velmi dobré úrovni.'; } else if(score>=70){ els.studentEval.textContent='Žák pracuje dobře, ale některé kroky ještě potřebuje doladit.'; els.teacherEval.textContent='Učitel: doporučeno procvičit přesný zápis vzorců.'; } else { els.studentEval.textContent='Žák zatím nezačal nebo potřebuje další procvičení.'; els.teacherEval.textContent='Učitel: zaměřit se na adresy buněk, rozsahy a funkce.'; } }
+
+  function applyFormula(){ if(!selected) return; data()[selected]=els.formulaInput.value; const task=tasks[activeTaskIndex]; if(task && task.type==='write' && task.target===selected){ if(normalize(els.formulaInput.value)===normalize(task.expected)){ solveTask(task.id, els.formulaInput.value); els.guideBubble.textContent='Správně ✔ Vzorec je správný.'; } else { els.guideBubble.textContent='Vzorec není správný. Zkus to znovu.'; } } saveLocalState(); render(); }
+  function resetWorkState(){ activeTaskIndex=-1; solved=new Set(); answers={}; workFinished=false; workSeconds=0; updateTime(); updateProgress(); setSaveState('zatím neuloženo'); els.guideBubble.textContent='Práce byla resetována. Můžeš začít znovu. Klikni na Další úkol.'; saveLocalState(); }
+
+  function downloadJson(name,obj){ const blob = new Blob([JSON.stringify(obj,null,2)], {type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+  function loadDemoData(){ workbook.sheets={'List 1':{A1:'živočich',B1:'oči',C1:'nohy',D1:'plave',E1:'SUMA',F1:'PRŮMĚR',G1:'MAX',H1:'KDYŽ',I1:'ZLEVA',J1:'DÉLKA',A2:'mažout',B2:'5',C2:'9',D2:'ano',A3:'pabuch',B3:'6',C3:'5',D3:'ne',A4:'slizolop',B4:'9',C4:'3',D4:'ano',A5:'chňapal',B5:'2',C5:'8',D5:'ne',A6:'vrčoun',B6:'7',C6:'12',D6:'ano',A7:'bublan',B7:'4',C7:'6',D7:'ano',A9:'souhrn',B9:'',C9:''}}; workbook.activeSheet='List 1'; selected='A1'; selectedRow=null; selectedCol=null; resetWorkState(); render(); }
+  function renderTaskBank(){ els.taskBankBox.innerHTML = tasks.length ? tasks.map(t=>`<div class="mini"><b>#${t.id}</b> · ${t.skill}<br>${t.prompt}<br><span class="muted">${t.type} · ${t.target}${t.expected?` · ${t.expected}`:''}</span><br><button type="button" data-del="${t.id}">Smazat</button></div>`).join('') : '<div class="mini">Zatím žádné úkoly.</div>'; els.taskBankBox.querySelectorAll('button[data-del]').forEach(btn=>btn.addEventListener('click', ()=>{ const id=Number(btn.dataset.del); tasks=tasks.filter(t=>t.id!==id).map((t,i)=>({...t,id:i+1})); renderTaskBank(); resetWorkState(); })); }
+  function demoTasksLoad(){ tasks=[{id:1,type:'select',skill:'adresy buněk',target:'C3',prompt:'Najdi buňku C3 a přečti údaj o nohách živočicha pabuch.'},{id:2,type:'write',skill:'SUMA',target:'E2',expected:'=SUMA(B2:C2)',prompt:'Do buňky E2 napiš =SUMA(B2:C2).'},{id:3,type:'write',skill:'PRŮMĚR',target:'F2',expected:'=PRŮMĚR(B2:C2)',prompt:'Do buňky F2 napiš =PRŮMĚR(B2:C2).'},{id:4,type:'write',skill:'MAX',target:'G2',expected:'=MAX(B2:C2)',prompt:'Do buňky G2 napiš =MAX(B2:C2).'},{id:5,type:'write',skill:'KDYŽ',target:'H2',expected:'=KDYŽ(C2>=8;"splnil";"nesplnil")',prompt:'Do buňky H2 napiš =KDYŽ(C2>=8;"splnil";"nesplnil").'},{id:6,type:'write',skill:'ZLEVA',target:'I2',expected:'=ZLEVA(A2;3)',prompt:'Do buňky I2 napiš =ZLEVA(A2;3).'},{id:7,type:'write',skill:'DÉLKA',target:'J2',expected:'=DÉLKA(A2)',prompt:'Do buňky J2 napiš =DÉLKA(A2).'},{id:8,type:'write',skill:'souhrn',target:'C9',expected:'=SUMA(C2:C7)',prompt:'Do buňky C9 napiš =SUMA(C2:C7).'},{id:9,type:'write',skill:'počet',target:'B9',expected:'=POČET(B2:B7)',prompt:'Do buňky B9 napiš =POČET(B2:B7).'}]; renderTaskBank(); resetWorkState(); updateProgress(); }
+  function loadPreset(type){ if(type===1){ tasks=[{id:1,type:'select',skill:'adresy buněk',target:'A2',prompt:'Klikni na buňku A2.'},{id:2,type:'select',skill:'adresy buněk',target:'C3',prompt:'Najdi buňku C3.'},{id:3,type:'select',skill:'adresy buněk',target:'D6',prompt:'Najdi buňku D6.'},{id:4,type:'select',skill:'adresy buněk',target:'B7',prompt:'Najdi buňku B7.'},{id:5,type:'select',skill:'adresy buněk',target:'C9',prompt:'Najdi buňku C9.'}]; els.assName.value='Adresy buněk – 8. ročník'; } if(type===2){ tasks=[{id:1,type:'write',skill:'SUMA',target:'E2',expected:'=SUMA(B2:C2)',prompt:'Do buňky E2 napiš =SUMA(B2:C2).'},{id:2,type:'write',skill:'PRŮMĚR',target:'F2',expected:'=PRŮMĚR(B2:C2)',prompt:'Do buňky F2 napiš =PRŮMĚR(B2:C2).'},{id:3,type:'write',skill:'MAX',target:'G2',expected:'=MAX(B2:C2)',prompt:'Do buňky G2 napiš =MAX(B2:C2).'},{id:4,type:'write',skill:'KDYŽ',target:'H2',expected:'=KDYŽ(C2>=8;"splnil";"nesplnil")',prompt:'Do buňky H2 napiš =KDYŽ(C2>=8;"splnil";"nesplnil").'},{id:5,type:'write',skill:'ZLEVA',target:'I2',expected:'=ZLEVA(A2;3)',prompt:'Do buňky I2 napiš =ZLEVA(A2;3).'},{id:6,type:'write',skill:'DÉLKA',target:'J2',expected:'=DÉLKA(A2)',prompt:'Do buňky J2 napiš =DÉLKA(A2).'},{id:7,type:'write',skill:'souhrn',target:'C9',expected:'=SUMA(C2:C7)',prompt:'Do buňky C9 napiš =SUMA(C2:C7).'},{id:8,type:'write',skill:'počet',target:'B9',expected:'=POČET(B2:B7)',prompt:'Do buňky B9 napiš =POČET(B2:B7).'}]; els.assName.value='Vzorce a funkce – 8. ročník'; } if(type===3){ tasks=[{id:1,type:'select',skill:'filtr',target:'D2',prompt:'Najdi sloupec s údaji o plavání.'},{id:2,type:'write',skill:'souhrn',target:'C9',expected:'=SUMA(C2:C7)',prompt:'Doplň =SUMA(C2:C7).'},{id:3,type:'write',skill:'počet',target:'B9',expected:'=POČET(B2:B7)',prompt:'Doplň =POČET(B2:B7).'},{id:4,type:'select',skill:'řazení',target:'C1',prompt:'Klikni do sloupce C a pak použij Seřadit 0–9.'},{id:5,type:'select',skill:'řazení',target:'A1',prompt:'Klikni do sloupce A a pak použij Seřadit A–Z.'}]; els.assName.value='Filtr a řazení – 8. ročník'; } renderTaskBank(); resetWorkState(); updateProgress(); }
+  function nextTask(){ if(!tasks.length) return; if(activeTaskIndex===-1){ activeTaskIndex=0; } else if(activeTaskIndex<tasks.length-1){ activeTaskIndex++; } render(); }
+  function prevTask(){ if(activeTaskIndex>0) activeTaskIndex--; render(); }
+  function finishWork(){ workFinished=true; els.guideBubble.textContent='Práce je ukončena. Exportuj výsledek a pošli ho učiteli.'; saveLocalState(); render(); }
+  function addTaskFromTeacher(){ const type=els.taskType.value, skill=els.taskSkill.value.trim(), target=els.taskTarget.value.trim().toUpperCase(), prompt=els.taskPrompt.value.trim(), expected=els.taskExpected.value.trim(), points=Number(els.taskPoints.value||2); if(!skill || !target || !prompt) return alert('Vyplň dovednost, cílovou buňku a zadání.'); tasks.push({id:tasks.length+1,type,skill,target,prompt,expected,points}); renderTaskBank(); els.taskSkill.value=''; els.taskTarget.value=''; els.taskPrompt.value=''; els.taskExpected.value=''; els.taskPoints.value='2'; }
+  function exportAssignment(){ downloadJson('zadani.json', { version:1, meta:{ title:els.assName.value.trim(), grade:els.assGrade.value.trim(), note:els.assNote.value.trim() }, tasks, starterSheet:data(), teacherExportedAt:new Date().toISOString() }); }
+  function loadAssignmentFile(file){ file.text().then(text=>{ const parsed=JSON.parse(text); if(Array.isArray(parsed.tasks)) tasks=parsed.tasks.map((t,i)=>({...t,id:i+1})); if(parsed.meta){ els.assName.value=parsed.meta.title||''; els.assGrade.value=parsed.meta.grade||''; els.assNote.value=parsed.meta.note||''; } if(parsed.starterSheet) workbook.sheets[workbook.activeSheet]=parsed.starterSheet; activeTaskIndex=0; solved=new Set(); answers={}; workFinished=false; workSeconds=0; updateTime(); renderTaskBank(); saveLocalState(); render(); els.guideBubble.textContent='Zadání bylo načteno. Postupuj pomalu: přečti zadání, najdi cílovou buňku a teprve potom udělej krok.'; }).catch(()=>alert('Soubor zadání se nepodařilo načíst.')); }
+  function exportResult(){ downloadJson('vysledek-zaka.json', { version:1, studentResult:{ assignmentTitle: els.assName.value || 'Bez názvu', ...studentMeta(), grade: els.assGrade.value || '', solved:[...solved], totalTasks: tasks.length, score: Math.round((solved.size/Math.max(tasks.length,1))*100), answers, sheet:data(), finished: workFinished, timeSpentSeconds: workSeconds, exportedAt: new Date().toISOString() } }); }
+  function loadStudentResultFile(file){ file.text().then(text=>{ const parsed=JSON.parse(text); const r=parsed.studentResult; if(!r) throw new Error('invalid'); els.teacherResultBox.innerHTML = `<div class="mini"><b>Žák:</b> ${r.studentName || 'neuvedeno'}</div><div class="mini"><b>Třída:</b> ${r.studentClass || 'neuvedeno'}</div><div class="mini"><b>Škola:</b> ${r.schoolName || 'neuvedeno'}</div><div class="mini"><b>Zadání:</b> ${r.assignmentTitle || 'Bez názvu'}</div><div class="mini"><b>Skóre:</b> ${r.score}%</div><div class="mini"><b>Splněno:</b> ${r.solved.length} / ${r.totalTasks}</div><div class="mini"><b>Čas práce:</b> ${formatTime(r.timeSpentSeconds || 0)}</div>`; }).catch(()=>alert('Výsledek žáka se nepodařilo načíst.')); }
+  function openTableWindow(){ const win=window.open('','_blank','width=1500,height=950'); if(!win) return; win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>EduTab tabulka</title><style>body{font-family:Arial;padding:16px;background:#f8fbff}.wrap{overflow:auto;background:#fff;border:1px solid #d7deea;border-radius:14px}table{border-collapse:collapse;width:max-content}th,td{border:1px solid #d7deea;min-width:150px;height:42px;padding:8px 10px;font-size:18px}th{background:#eef3fb;position:sticky;top:0}.rowhead{position:sticky;left:0;background:#eef3fb}.corner{position:sticky;left:0;top:0;background:#eef3fb}</style></head><body><h1>EduTab – samostatné zobrazení tabulky</h1><div class="wrap">${els.sheetWrap.innerHTML}</div></body></html>`); win.document.close(); }
+  function addRecord(){ const names=['nováček','žbluňk','mrkavec','vrtoch','suproň']; const row=[2,3,4,5,6,7,8].find(r=>!get('A'+r)); if(!row) return alert('Není volný řádek.'); const i=Math.floor(Math.random()*names.length); data()['A'+row]=names[i]; data()['B'+row]=String(2+i); data()['C'+row]=String(4+i); data()['D'+row]=i%2===0?'ano':'ne'; saveLocalState(); els.guideBubble.textContent='Nový záznam byl přidán do tabulky.'; render(); }
+  function sortBy(col,numeric,desc){ const rows=[2,3,4,5,6,7,8].filter(r=>get('A'+r)); const items=rows.map(r=>({vals:Object.fromEntries(COLS_LIST.map(c=>[c,get(c+r)]))})); items.sort((x,y)=>{ const a=x.vals[COLS_LIST[col]]??'', b=y.vals[COLS_LIST[col]]??''; let res=numeric?num(a)-num(b):String(a).localeCompare(String(b),'cs'); return desc?-res:res; }); rows.forEach((r,i)=>COLS_LIST.forEach(c=>data()[c+r]=items[i].vals[c]??'')); saveLocalState(); els.guideBubble.textContent='Tabulka byla seřazena.'; render(); }
+  function toggleFilter(){ if(!filterState.enabled){ const text=prompt('Zadej text filtru:','ano'); if(text===null) return; filterState={enabled:true,text}; $('toggleFilter').classList.add('active'); els.guideBubble.textContent='Filtr je zapnutý na text: '+text; } else { filterState={enabled:false,text:''}; $('toggleFilter').classList.remove('active'); els.guideBubble.textContent='Filtr je vypnutý.'; } saveLocalState(); render(); }
+  function switchMode(mode){ $('studentMode').classList.toggle('hidden', mode!=='student'); $('teacherMode').classList.toggle('hidden', mode!=='teacher'); $('aboutMode').classList.toggle('hidden', mode!=='about'); document.querySelectorAll('#topTabs button').forEach(b=>b.classList.toggle('on', b.dataset.mode===mode)); }
+  function bind(id, fn){ const el=$(id); if(el) el.addEventListener('click', fn); }
+
+  bind('printApp', ()=>window.print());
+  bind('zoomIn', ()=>{ tableScale=Math.min(1.8, +(tableScale+0.1).toFixed(2)); applyScale(); });
+  bind('zoomOut', ()=>{ tableScale=Math.max(0.7, +(tableScale-0.1).toFixed(2)); applyScale(); });
+  bind('zoomReset', ()=>{ tableScale=1; applyScale(); });
+  bind('openTableWindow', openTableWindow);
+  bind('loadDemo', ()=>{ loadDemoData(); els.guideBubble.textContent='Byla načtena ukázková data.'; });
+  bind('addRecordBtn', addRecord);
+  bind('sortAZBtn', ()=>sortBy(selectedCol!==null?selectedCol:0,false,false));
+  bind('sort09Btn', ()=>sortBy(selectedCol!==null?selectedCol:2,true,false));
+  bind('loadAssignmentBtn', ()=>els.assignmentFile.click());
+  bind('loadAssignmentBtn2', ()=>els.assignmentFile.click());
+  bind('nextTaskTop', nextTask);
+  bind('toggleFilter', toggleFilter);
+  bind('applyFormula', applyFormula);
+  bind('prevTask', prevTask);
+  bind('nextTask', nextTask);
+  bind('finishWork', finishWork);
+  bind('resetWork', ()=>{ if(confirm('Opravdu chceš smazat rozpracovanou práci?')){ resetWorkState(); loadDemoData(); } });
+  bind('saveLocal', saveLocalState);
+  bind('loadLocal', loadLocalState);
+  bind('exportResult', exportResult);
+  bind('addTaskBtn', addTaskFromTeacher);
+  bind('loadDemoTasks', demoTasksLoad);
+  bind('clearTasks', ()=>{ tasks=[]; renderTaskBank(); resetWorkState(); });
+  bind('exportAssignment', exportAssignment);
+  bind('downloadAppInfo', ()=>downloadJson('navod-edutab.json',{info:'Nahraj HTML do Google Sites nebo Drive. Žákům pošli aplikaci + zadani.json.'}));
+  bind('preset1', ()=>loadPreset(1));
+  bind('preset2', ()=>loadPreset(2));
+  bind('preset3', ()=>loadPreset(3));
+  bind('loadStudentResult', ()=>els.studentResultFile.click());
+
+  els.assignmentFile.addEventListener('change', e=>{ const f=e.target.files[0]; if(f) loadAssignmentFile(f); e.target.value=''; });
+  els.studentResultFile.addEventListener('change', e=>{ const f=e.target.files[0]; if(f) loadStudentResultFile(f); e.target.value=''; });
+  els.formulaInput.addEventListener('keydown', e=>{ if(e.key==='Enter') applyFormula(); });
+  ['studentName','studentClass','schoolName','assignmentCode'].forEach(id=>$(id).addEventListener('input', saveLocalState));
+  document.querySelectorAll('#topTabs button').forEach(btn=>btn.addEventListener('click', ()=>switchMode(btn.dataset.mode)));
+
+  loadDemoData();
+  demoTasksLoad();
+  render();
+  updateTime();
+  startTimer();
+  if(localStorage.getItem(LOCAL_KEY)) setSaveState('nalezena uložená práce');
+})();
+</script>
+</body>
+</html>
